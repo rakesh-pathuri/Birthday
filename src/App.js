@@ -12,37 +12,24 @@ export default function BirthdayWish() {
   const [isMuted, setIsMuted] = useState(true); // start muted
   const audioRef = useRef(null);
 
-  useEffect(() => {
-    setIsLoaded(true);
-
-    // Attempt autoplay muted first (to satisfy browser rules)
+useEffect(() => {
+  const startMusic = () => {
     if (audioRef.current) {
-      audioRef.current.play().catch(err => console.log("Autoplay blocked", err));
+      audioRef.current.muted = false; // unmute
+      audioRef.current.play().catch(err => console.log(err));
     }
+    window.removeEventListener('click', startMusic);
+    window.removeEventListener('touchstart', startMusic);
+  };
 
-    // Enable music on first user interaction
-    const startMusic = () => {
-      if (audioRef.current) {
-        audioRef.current.muted = false; // unmute
-        audioRef.current.play().catch(err => console.log(err));
-        setIsMuted(false);
-      }
-      // Remove listeners after first interaction
-      window.removeEventListener('click', startMusic);
-      window.removeEventListener('keydown', startMusic);
-      window.removeEventListener('touchstart', startMusic);
-    };
+  window.addEventListener('click', startMusic);
+  window.addEventListener('touchstart', startMusic);
 
-    window.addEventListener('click', startMusic);
-    window.addEventListener('keydown', startMusic);
-    window.addEventListener('touchstart', startMusic);
-
-    return () => {
-      window.removeEventListener('click', startMusic);
-      window.removeEventListener('keydown', startMusic);
-      window.removeEventListener('touchstart', startMusic);
-    };
-  }, []);
+  return () => {
+    window.removeEventListener('click', startMusic);
+    window.removeEventListener('touchstart', startMusic);
+  };
+}, []);
 
   const toggleMute = () => {
     if (audioRef.current) {
